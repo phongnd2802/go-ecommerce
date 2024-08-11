@@ -27,4 +27,7 @@ migare-force:
 sqlc:
 	sqlc generate
 
-.PHONY: run mysql createdb dropdb migrate-up migrate-down sqlc
+wire:
+	wire internal/wire/
+
+.PHONY: run mysql createdb dropdb migrate-up migrate-down sqlc wire
