@@ -18,8 +18,20 @@ func NewAccessController(accessService services.IAccessService) *AccessControlle
 	}
 }
 
+
+func (ac *AccessController) Login(ctx *gin.Context) {
+	var payload dtos.ShopRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		response.ValidatorErrorResponse(ctx, response.ErrCodeBadRequest)
+		return
+	}
+
+	data, code := ac.accessService.Login(payload.Email, payload.Password)
+	response.SuccessResponse(ctx, code, data)
+}
+
 func (ac *AccessController) SignUp(ctx *gin.Context) {
-	var payload dtos.ShopRegisterRequest
+	var payload dtos.ShopRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		response.ValidatorErrorResponse(ctx, response.ErrCodeBadRequest)
 		return

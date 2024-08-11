@@ -3,7 +3,6 @@ package services
 import (
 	"database/sql"
 	"strings"
-	"github.com/phongnd2802/go-ecommerce/global"
 	"github.com/phongnd2802/go-ecommerce/internal/dtos"
 	"github.com/phongnd2802/go-ecommerce/internal/repositories"
 	"github.com/phongnd2802/go-ecommerce/pkg/response"
@@ -12,12 +11,54 @@ import (
 
 type IAccessService interface {
 	SignUp(email string, password string) (*dtos.ShopResponse, int)
+	Login(email string, password string) (*dtos.ShopResponse, int)
 }
 
-type accessService struct{
+type accessService struct {
 	shopRepo repositories.IShopRepository
+	tokenRepo repositories.ITokenRepository
 }
 
+// Login implements IAccessService.
+func (as *accessService) Login(email string, password string) (*dtos.ShopResponse, int) {
+	foundShop, err := as.shopRepo.GetShopByEmail(email)
+	if err == sql.ErrNoRows {
+		return nil, response.ErrCodeEmailOrPasswordIncorrect
+	}
+
+	match := utils.CheckPasswordHash(password, foundShop.Password)
+	if !match {
+		return nil, response.ErrCodeEmailOrPasswordIncorrect
+	}
+	privateKey, publicKey, _ := utils.GenerateRSAKeyPair(2048)
+	
+	payload := map[string]any{
+		"id": foundShop.ID,
+		"email": foundShop.Email,
+	}
+	accessToken, _ := utils.CreateAccessToken(payload, privateKey)
+	refreshToken, _ := utils.CreateRefreshToken(payload, privateKey)
+
+
+	_, err = as.tokenRepo.CreateKeyToken(publicKey, refreshToken, foundShop.ID)
+	if err != nil {
+		return nil, response.ErrCodeInternalServer
+	}
+
+
+	return &dtos.ShopResponse{
+		ID:        foundShop.ID,
+		Name:      foundShop.ShopName,
+		Email:     foundShop.Email,
+		IsActive:  foundShop.IsActive.Bool,
+		CreatedAt: foundShop.CreatedAt.Time,
+		UpdatedAt: foundShop.UpdatedAt.Time,
+		Tokens: dtos.TokenReponse{
+			AccessToken: accessToken,
+			RefreshToken: refreshToken,
+		},
+	}, response.CodeSuccess
+}
 
 // SignUp implements IAccessService.
 func (as *accessService) SignUp(email string, password string) (*dtos.ShopResponse, int) {
@@ -26,27 +67,51 @@ func (as *accessService) SignUp(email string, password string) (*dtos.ShopRespon
 		emailSplitted := strings.Split(email, "@")
 		shopName := emailSplitted[0]
 		passwordHash, _ := utils.HashPassword(password)
-		newShop, err := as.shopRepo.CreateShop(shopName, email, passwordHash) 
+		newShop, err := as.shopRepo.CreateShop(shopName, email, passwordHash)
 		if err != nil {
-			global.Logger.Error(err.Error())
 			return nil, response.ErrCodeInternalServer
 		}
 
+
+		privateKey, publicKey, _ := utils.GenerateRSAKeyPair(2048)
+	
+		payload := map[string]any{
+			"id": newShop.ID,
+			"email": newShop.Email,
+		}
+		accessToken, _ := utils.CreateAccessToken(payload, privateKey)
+		refreshToken, _ := utils.CreateRefreshToken(payload, privateKey)
+
+
+		_, err = as.tokenRepo.CreateKeyToken(publicKey, refreshToken, newShop.ID)
+		if err != nil {
+			return nil, response.ErrCodeInternalServer
+		}
+
+
 		return &dtos.ShopResponse{
-			ID: newShop.ID,
-			Name: newShop.ShopName,
-			Email: newShop.Email,
-			IsActive: newShop.IsActive.Bool,
+			ID:        newShop.ID,
+			Name:      newShop.ShopName,
+			Email:     newShop.Email,
+			IsActive:  newShop.IsActive.Bool,
 			CreatedAt: newShop.CreatedAt.Time,
 			UpdatedAt: newShop.UpdatedAt.Time,
-		}, response.CodeCreated
-	} 
+			Tokens: dtos.TokenReponse{
+				AccessToken: accessToken,
+				RefreshToken: refreshToken,
+			},
+		}, response.CodeSuccess
+	}
 
 	return nil, response.ErrCodeShopExist
 }
 
-func NewAccessService(shopRepo repositories.IShopRepository) IAccessService {
+func NewAccessService(
+	shopRepo repositories.IShopRepository,
+	tokenRepo repositories.ITokenRepository,
+	) IAccessService {
 	return &accessService{
+		tokenRepo: tokenRepo,
 		shopRepo: shopRepo,
 	}
 }

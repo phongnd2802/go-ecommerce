@@ -15,6 +15,7 @@ func (ar *AccessRouter) InitAccessRouter(Router *gin.RouterGroup) {
 	accessRouterPublic := Router.Group("/shop")
 	{
 		accessRouterPublic.POST("/signup", accessController.SignUp)
+		accessRouterPublic.POST("/login", accessController.Login)
 	}
 
 	// Private Router
