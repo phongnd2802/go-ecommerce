@@ -9,7 +9,8 @@ const (
 	ErrCodeBadRequest               = 40001
 	ErrCodeInternalServer           = 50000
 	ErrCodeShopExist                = 40011
-	ErrCodeEmailOrPasswordIncorrect = 40003
+	ErrCodeEmailOrPasswordIncorrect = 40010
+	ErrCodeForbidden                = 40003
 )
 
 var msg = map[int]string{
@@ -20,4 +21,5 @@ var msg = map[int]string{
 	ErrCodeInternalServer:           "Internal Server Error",
 	ErrCodeShopExist:                "Email already exists",
 	ErrCodeEmailOrPasswordIncorrect: "Email or Password Incorrect",
+	ErrCodeForbidden:                "Forbidden Error",
 }

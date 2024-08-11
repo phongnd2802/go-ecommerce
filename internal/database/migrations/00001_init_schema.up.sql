@@ -1,6 +1,6 @@
 BEGIN;
 
-CREATE TABLE shops (
+CREATE TABLE IF NOT EXISTS shops (
     id VARCHAR(50) PRIMARY KEY,
     shop_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE shops (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     id int PRIMARY KEY AUTO_INCREMENT,
     role_name varchar(100) UNIQUE NOT NULL,
     role_description text,
@@ -18,7 +18,7 @@ CREATE TABLE roles (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE shop_roles (
+CREATE TABLE IF NOT EXISTS shop_roles (
     shop_id VARCHAR(50),
     role_id int,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -28,7 +28,7 @@ CREATE TABLE shop_roles (
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
 
-CREATE TABLE tokens (
+CREATE TABLE IF NOT EXISTS tokens (
     id varchar(50) PRIMARY KEY,
     public_key text NOT NULL,
     refresh_token text NOT NULL,
