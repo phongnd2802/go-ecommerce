@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 	database "github.com/phongnd2802/go-ecommerce/internal/database/sqlc"
@@ -10,10 +11,29 @@ import (
 type ITokenRepository interface {
 	CreateKeyToken(publicKey, refreshToken string, shopID string) (*database.Token, error)
 	DeleteTokenByID(id string) error
+	UpdateTokenByID(newRefreshToken, refreshToken, newPublicKey, id string) error
 }
 
 type tokenRepository struct {
 	db *database.Store
+}
+
+// UpdateTokenByID implements ITokenRepository.
+func (tr *tokenRepository) UpdateTokenByID(newRefreshToken, refreshToken, newPublicKey, id string) error {
+	err := tr.db.UpdateToken(context.Background(), database.UpdateTokenParams{
+		RefreshToken: newRefreshToken,
+		RefreshTokenUsed: sql.NullString{
+			String: refreshToken,
+			Valid: true,
+		},
+		ID: id,
+		PublicKey: newPublicKey,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // DeleteTokenByID implements ITokenRepository.

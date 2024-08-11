@@ -13,6 +13,8 @@ const (
 	ErrCodeForbidden                = 40003
 	ErrCodeNotFound                 = 40004
 	ErrCodeFailedVerifyJWT          = 40020
+	ErrCodeShopNotExist             = 40021
+	ErrCodeRefreshTokenUsed         = 40022
 )
 
 var msg = map[int]string{
@@ -26,4 +28,6 @@ var msg = map[int]string{
 	ErrCodeForbidden:                "Forbidden Error",
 	ErrCodeNotFound:                 "Not Found",
 	ErrCodeFailedVerifyJWT:          "Failed to verify JWT token",
+	ErrCodeShopNotExist:             "Shop not regitered",
+	ErrCodeRefreshTokenUsed:         "Please Login again",
 }

@@ -16,11 +16,12 @@ func SuccessResponse(ctx *gin.Context, code int, data any) {
 		ErrorResposne(ctx, code)
 		return
 	}
-	ctx.JSON(http.StatusOK, ResponseData{
+	ctx.AbortWithStatusJSON(http.StatusOK, ResponseData{
 		Code: code,
 		Message: msg[code],
 		Data: data,
 	})
+
 }
 
 func ForbiddenResponse(ctx *gin.Context, code int) {

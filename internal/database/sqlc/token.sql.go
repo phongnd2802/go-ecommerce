@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createToken = `-- name: CreateToken :exec
@@ -80,4 +81,25 @@ func (q *Queries) GetTokenByShopID(ctx context.Context, shopID string) (Token, e
 		&i.ShopID,
 	)
 	return i, err
+}
+
+const updateToken = `-- name: UpdateToken :exec
+UPDATE tokens SET refresh_token = ?, refresh_token_used = ?, public_key = ? WHERE id = ?
+`
+
+type UpdateTokenParams struct {
+	RefreshToken     string
+	RefreshTokenUsed sql.NullString
+	PublicKey        string
+	ID               string
+}
+
+func (q *Queries) UpdateToken(ctx context.Context, arg UpdateTokenParams) error {
+	_, err := q.db.ExecContext(ctx, updateToken,
+		arg.RefreshToken,
+		arg.RefreshTokenUsed,
+		arg.PublicKey,
+		arg.ID,
+	)
+	return err
 }
