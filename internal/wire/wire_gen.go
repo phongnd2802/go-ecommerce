@@ -19,7 +19,8 @@ import (
 func InitAccessRouterHandler(db *sql.DB) (*controllers.AccessController, error) {
 	store := database.NewStore(db)
 	iShopRepository := repositories.NewShopRepository(store)
-	iAccessService := services.NewAccessService(iShopRepository)
+	iTokenRepository := repositories.NewTokenRepository(store)
+	iAccessService := services.NewAccessService(iShopRepository, iTokenRepository)
 	accessController := controllers.NewAccessController(iAccessService)
 	return accessController, nil
 }
