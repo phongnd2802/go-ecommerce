@@ -3,7 +3,6 @@ package services
 import (
 	"database/sql"
 	"strings"
-
 	"github.com/phongnd2802/go-ecommerce/global"
 	"github.com/phongnd2802/go-ecommerce/internal/dtos"
 	"github.com/phongnd2802/go-ecommerce/internal/repositories"
@@ -34,8 +33,12 @@ func (as *accessService) SignUp(email string, password string) (*dtos.ShopRespon
 		}
 
 		return &dtos.ShopResponse{
+			ID: newShop.ID,
 			Name: newShop.ShopName,
 			Email: newShop.Email,
+			IsActive: newShop.IsActive.Bool,
+			CreatedAt: newShop.CreatedAt.Time,
+			UpdatedAt: newShop.UpdatedAt.Time,
 		}, response.CodeCreated
 	} 
 
