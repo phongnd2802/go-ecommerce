@@ -1,10 +1,10 @@
 package initializes
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/phongnd2802/go-ecommerce/global"
+	"github.com/phongnd2802/go-ecommerce/internal/routers"
+	"github.com/phongnd2802/go-ecommerce/pkg/response"
 )
 
 func initRouter() *gin.Engine {
@@ -22,14 +22,19 @@ func initRouter() *gin.Engine {
 
 
 	// routers
-
+	managerRouter := routers.RouterApp.Manage
+	userRouter := routers.RouterApp.User
 	MainGroup := r.Group("/api/v1") 
 	{
 		MainGroup.GET("/monitor", func(ctx *gin.Context) {
-			ctx.JSON(http.StatusOK, gin.H{
-				"message": "OK",
-			})
+			response.SuccessResponse(ctx, response.CodeSuccess, "OK")
 		})
+	}
+	{
+		userRouter.InitAccessRouter(MainGroup)
+	}
+	{
+		managerRouter.InitAccessRouter(MainGroup)
 	}
 	return r
 }
