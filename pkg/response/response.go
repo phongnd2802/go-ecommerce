@@ -23,8 +23,34 @@ func SuccessResponse(ctx *gin.Context, code int, data any) {
 	})
 }
 
+func ForbiddenResponse(ctx *gin.Context, code int) {
+	ctx.AbortWithStatusJSON(http.StatusForbidden, ResponseData{
+		Code: code,
+		Message: msg[code],
+		Data: nil,
+	})
+	
+}
+
+func NotFoundReponse(ctx *gin.Context, code int) {
+	ctx.AbortWithStatusJSON(http.StatusNotFound, ResponseData{
+		Code: code,
+		Message: msg[code],
+		Data: nil,
+	})
+}
+
+
+func InternalServerReponse(ctx *gin.Context, code int) {
+	ctx.AbortWithStatusJSON(http.StatusInternalServerError, ResponseData{
+		Code: code,
+		Message: msg[code],
+		Data: nil,
+	})
+}
+
 func ErrorResposne(ctx *gin.Context, code int) {
-	ctx.JSON(http.StatusBadRequest, ResponseData{
+	ctx.AbortWithStatusJSON(http.StatusBadRequest, ResponseData{
 		Code: code,
 		Message: msg[code],
 		Data: nil,
@@ -33,13 +59,12 @@ func ErrorResposne(ctx *gin.Context, code int) {
 
 
 func ValidatorErrorResponse(ctx *gin.Context, code int) {
-	ctx.JSON(http.StatusBadRequest, ResponseData{
+	ctx.AbortWithStatusJSON(http.StatusBadRequest, ResponseData{
 		Code: code,
 		Message: msg[code],
 		Data: nil,
 	})
 
-	defer ctx.AbortWithStatus(http.StatusBadRequest)
 }
 
 

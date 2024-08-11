@@ -8,6 +8,13 @@ import (
 	"database/sql"
 )
 
+type ApiKey struct {
+	ID          int32
+	Akey        string
+	Status      sql.NullBool
+	Permissions string
+}
+
 type Role struct {
 	ID              int32
 	RoleName        string

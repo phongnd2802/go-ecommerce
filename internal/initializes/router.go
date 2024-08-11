@@ -3,6 +3,7 @@ package initializes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/phongnd2802/go-ecommerce/global"
+	"github.com/phongnd2802/go-ecommerce/internal/middlewares"
 	"github.com/phongnd2802/go-ecommerce/internal/routers"
 	"github.com/phongnd2802/go-ecommerce/pkg/response"
 )
@@ -19,8 +20,8 @@ func initRouter() *gin.Engine {
 	}
 
 	// Middlewares
-
-
+	r.Use(middlewares.ApiKey())
+	r.Use(middlewares.Permissions("1111"))
 	// routers
 	managerRouter := routers.RouterApp.Manage
 	userRouter := routers.RouterApp.User

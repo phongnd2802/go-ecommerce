@@ -12,3 +12,10 @@ INSERT INTO tokens (
 -- name: GetTokenByID :one
 SELECT * FROM tokens
 WHERE id = ?;
+
+-- name: GetTokenByShopID :one
+SELECT * FROM tokens
+WHERE shop_id = ?;
+
+-- name: DeleteTokenByID :exec
+DELETE FROM tokens WHERE id = ?;

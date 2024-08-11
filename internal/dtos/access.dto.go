@@ -22,4 +22,5 @@ type (
 		UpdatedAt time.Time    `json:"updated_at"`
 		Tokens    TokenReponse `json:"tokens"`
 	}
+
 )
