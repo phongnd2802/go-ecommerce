@@ -1,0 +1,7 @@
+BEGIN;
+
+DROP TABLE shop_roles;
+DROP TABLE shops;
+DROP TABLE roles;
+
+COMMIT;
