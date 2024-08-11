@@ -6,16 +6,18 @@ const (
 )
 
 const (
-	ErrCodeBadRequest     = 40001
-	ErrCodeInternalServer = 50000
-	ErrCodeShopExist      = 40011
+	ErrCodeBadRequest               = 40001
+	ErrCodeInternalServer           = 50000
+	ErrCodeShopExist                = 40011
+	ErrCodeEmailOrPasswordIncorrect = 40003
 )
 
 var msg = map[int]string{
 	CodeSuccess: "Success",
 	CodeCreated: "Created",
 
-	ErrCodeBadRequest:     "Bad Request",
-	ErrCodeInternalServer: "Internal Server Error",
-	ErrCodeShopExist:      "Email already exists",
+	ErrCodeBadRequest:               "Bad Request",
+	ErrCodeInternalServer:           "Internal Server Error",
+	ErrCodeShopExist:                "Email already exists",
+	ErrCodeEmailOrPasswordIncorrect: "Email or Password Incorrect",
 }

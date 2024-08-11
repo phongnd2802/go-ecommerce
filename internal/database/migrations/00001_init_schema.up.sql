@@ -28,5 +28,13 @@ CREATE TABLE shop_roles (
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
 
+CREATE TABLE tokens (
+    id varchar(50) PRIMARY KEY,
+    public_key text NOT NULL,
+    refresh_token text NOT NULL,
+    refresh_token_used text,
+    shop_id varchar(50) NOT NULL UNIQUE,
+    FOREIGN KEY (shop_id) REFERENCES shops(id) ON DELETE CASCADE
+);
 
 COMMIT;

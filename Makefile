@@ -21,7 +21,7 @@ migrate-up:
 migrate-down:
 	$(MIGRATE_CMD) -verbose down
 
-migare-force:
+migrate-force:
 	$(MIGRATE_CMD) force $(version)
 
 sqlc:
@@ -30,4 +30,4 @@ sqlc:
 wire:
 	wire internal/wire/
 
-.PHONY: run mysql createdb dropdb migrate-up migrate-down sqlc wire
+.PHONY: run mysql createdb dropdb migrate-up migrate-down sqlc wire migrate-force

@@ -32,3 +32,11 @@ type ShopRole struct {
 	CreatedAt sql.NullTime
 	UpdatedAt sql.NullTime
 }
+
+type Token struct {
+	ID               string
+	PublicKey        string
+	RefreshToken     string
+	RefreshTokenUsed sql.NullString
+	ShopID           string
+}
