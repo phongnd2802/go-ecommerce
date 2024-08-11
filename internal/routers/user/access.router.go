@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/phongnd2802/go-ecommerce/global"
+	"github.com/phongnd2802/go-ecommerce/internal/middlewares"
 	"github.com/phongnd2802/go-ecommerce/internal/wire"
 )
 
@@ -20,8 +21,8 @@ func (ar *AccessRouter) InitAccessRouter(Router *gin.RouterGroup) {
 
 	// Private Router
 	accessRouterPrivate := Router.Group("/shop")
-	//accessRouterPrivate.Use()
+	accessRouterPrivate.Use(middlewares.Authentication())
 	{
-		accessRouterPrivate.POST("/logout")
+		accessRouterPrivate.POST("/logout", accessController.Logout)
 	}
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	database "github.com/phongnd2802/go-ecommerce/internal/database/sqlc"
 	"github.com/phongnd2802/go-ecommerce/internal/dtos"
 	"github.com/phongnd2802/go-ecommerce/internal/services"
 	"github.com/phongnd2802/go-ecommerce/pkg/response"
@@ -16,6 +17,21 @@ func NewAccessController(accessService services.IAccessService) *AccessControlle
 	return &AccessController{
 		accessService: accessService,
 	}
+}
+
+func (ac *AccessController) Logout(ctx *gin.Context) {
+	value, exist := ctx.Get("keystore")
+	if !exist {
+		response.ErrorResposne(ctx, response.ErrCodeBadRequest)
+		return
+	}
+	keyStore, ok := value.(database.Token)
+	if !ok {
+		response.ErrorResposne(ctx, response.ErrCodeBadRequest)
+		return
+	}
+	code := ac.accessService.Logout(keyStore.ID)
+	response.SuccessResponse(ctx, code, nil)
 }
 
 
