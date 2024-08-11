@@ -11,6 +11,8 @@ const (
 	ErrCodeShopExist                = 40011
 	ErrCodeEmailOrPasswordIncorrect = 40010
 	ErrCodeForbidden                = 40003
+	ErrCodeNotFound                 = 40004
+	ErrCodeFailedVerifyJWT          = 40020
 )
 
 var msg = map[int]string{
@@ -22,4 +24,6 @@ var msg = map[int]string{
 	ErrCodeShopExist:                "Email already exists",
 	ErrCodeEmailOrPasswordIncorrect: "Email or Password Incorrect",
 	ErrCodeForbidden:                "Forbidden Error",
+	ErrCodeNotFound:                 "Not Found",
+	ErrCodeFailedVerifyJWT:          "Failed to verify JWT token",
 }

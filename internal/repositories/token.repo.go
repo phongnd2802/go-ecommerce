@@ -9,20 +9,30 @@ import (
 
 type ITokenRepository interface {
 	CreateKeyToken(publicKey, refreshToken string, shopID string) (*database.Token, error)
+	DeleteTokenByID(id string) error
 }
 
 type tokenRepository struct {
 	db *database.Store
 }
 
+// DeleteTokenByID implements ITokenRepository.
+func (tr *tokenRepository) DeleteTokenByID(id string) error {
+	err := tr.db.DeleteTokenByID(context.Background(), id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // CreateKeyToken implements ITokenRepository.
 func (tr *tokenRepository) CreateKeyToken(publicKey, refreshToken, shopID string) (*database.Token, error) {
 	id := uuid.New().String()
 	err := tr.db.CreateToken(context.Background(), database.CreateTokenParams{
-		ID: id,
-		PublicKey: publicKey,
+		ID:           id,
+		PublicKey:    publicKey,
 		RefreshToken: refreshToken,
-		ShopID: shopID,
+		ShopID:       shopID,
 	})
 
 	if err != nil {

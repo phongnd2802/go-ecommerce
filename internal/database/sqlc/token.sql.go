@@ -37,6 +37,15 @@ func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) error 
 	return err
 }
 
+const deleteTokenByID = `-- name: DeleteTokenByID :exec
+DELETE FROM tokens WHERE id = ?
+`
+
+func (q *Queries) DeleteTokenByID(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, deleteTokenByID, id)
+	return err
+}
+
 const getTokenByID = `-- name: GetTokenByID :one
 SELECT id, public_key, refresh_token, refresh_token_used, shop_id FROM tokens
 WHERE id = ?
@@ -44,6 +53,24 @@ WHERE id = ?
 
 func (q *Queries) GetTokenByID(ctx context.Context, id string) (Token, error) {
 	row := q.db.QueryRowContext(ctx, getTokenByID, id)
+	var i Token
+	err := row.Scan(
+		&i.ID,
+		&i.PublicKey,
+		&i.RefreshToken,
+		&i.RefreshTokenUsed,
+		&i.ShopID,
+	)
+	return i, err
+}
+
+const getTokenByShopID = `-- name: GetTokenByShopID :one
+SELECT id, public_key, refresh_token, refresh_token_used, shop_id FROM tokens
+WHERE shop_id = ?
+`
+
+func (q *Queries) GetTokenByShopID(ctx context.Context, shopID string) (Token, error) {
+	row := q.db.QueryRowContext(ctx, getTokenByShopID, shopID)
 	var i Token
 	err := row.Scan(
 		&i.ID,
