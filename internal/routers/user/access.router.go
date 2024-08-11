@@ -24,5 +24,6 @@ func (ar *AccessRouter) InitAccessRouter(Router *gin.RouterGroup) {
 	accessRouterPrivate.Use(middlewares.Authentication())
 	{
 		accessRouterPrivate.POST("/logout", accessController.Logout)
+		accessRouterPrivate.POST("/handleRefreshToken", accessController.HandleRefreshToken)
 	}
 }

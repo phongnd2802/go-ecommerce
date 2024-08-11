@@ -15,11 +15,13 @@ const (
 	API_KEY       = "x-api-key"
 	CLIENT_ID     = "x-client-id"
 	AUTHORIZATION = "authorization"
+	REFRESHTOKEN  = "x-rtoken-id"
 )
 
 const (
-	OBJKEY = "objkey"
+	OBJKEY   = "objkey"
 	KEYSTORE = "keystore"
+	SHOP     = "shop"
 )
 
 func ApiKey() gin.HandlerFunc {
@@ -81,6 +83,30 @@ func Authentication() gin.HandlerFunc {
 		if err != nil {
 			response.NotFoundReponse(ctx, response.ErrCodeForbidden)
 			return
+		}
+
+		refreshToken := ctx.Request.Header.Get(REFRESHTOKEN)
+		if refreshToken != "" {
+			decodeShop, err := utils.VerifyToken(refreshToken, keyStore.PublicKey)
+			if err != nil {
+				response.InternalServerReponse(ctx, response.ErrCodeFailedVerifyJWT)
+				return
+			}
+
+			if claims, ok := decodeShop.Claims.(jwt.MapClaims); ok && decodeShop.Valid {
+				sub := claims["sub"].(string)
+				if sub != shopID {
+					response.ForbiddenResponse(ctx, response.ErrCodeForbidden)
+					return
+				}
+
+				ctx.Set(KEYSTORE, keyStore)
+				ctx.Set(SHOP, claims)
+				ctx.Set(REFRESHTOKEN, refreshToken) 
+				ctx.Next()
+				return
+			}
+
 		}
 
 		accessToken := ctx.Request.Header.Get(AUTHORIZATION)
