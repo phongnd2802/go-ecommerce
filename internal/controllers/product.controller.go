@@ -25,7 +25,7 @@ func (pc *ProductController) CreateProduct(ctx *gin.Context) {
 		response.ValidatorErrorResponse(ctx, response.ErrCodeBadRequest)
 		return
 	}
-
-	data, code := pc.productFactory.CreateProduct(payload, payload.ProductType)
+	shopID := ctx.Request.Header.Get("x-client-id")
+	data, code := pc.productFactory.CreateProduct(payload, payload.ProductType, shopID)
 	response.SuccessResponse(ctx, code, data)
 }

@@ -13,13 +13,13 @@ type productFactory struct {
 }
 
 // CreateProduct implements IProductService.
-func (p *productFactory) CreateProduct(payload dtos.ProductCreateRequest, productType string) (*dtos.ProductCreateResponse, int) {
+func (p *productFactory) CreateProduct(payload dtos.ProductCreateRequest, productType string, productShop string) (*dtos.ProductCreateResponse, int) {
 	productTypeRef, ok := p.ProductTypes[productType]
 	if !ok {
 		return nil, response.ErrCodeInvalidProductType
 	}
 
-	result, err := productTypeRef.CreateProduct(payload)
+	result, err := productTypeRef.CreateProduct(payload, productShop)
 	if err != nil {
 		return nil, response.ErrCodeFailedInsertDB
 	}
