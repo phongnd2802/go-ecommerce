@@ -63,7 +63,7 @@ func ValidatorErrorResponse(ctx *gin.Context, code int) {
 	ctx.AbortWithStatusJSON(http.StatusBadRequest, ResponseData{
 		Code: code,
 		Message: msg[code],
-		Data: nil,
+		Data: "Invalid Request",
 	})
 
 }
