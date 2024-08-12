@@ -15,6 +15,8 @@ const (
 	ErrCodeFailedVerifyJWT          = 40020
 	ErrCodeShopNotExist             = 40021
 	ErrCodeRefreshTokenUsed         = 40022
+	ErrCodeFailedInsertDB           = 50001
+	ErrCodeInvalidProductType       = 40023
 )
 
 var msg = map[int]string{
@@ -30,4 +32,6 @@ var msg = map[int]string{
 	ErrCodeFailedVerifyJWT:          "Failed to verify JWT token",
 	ErrCodeShopNotExist:             "Shop not regitered",
 	ErrCodeRefreshTokenUsed:         "Please Login again",
+	ErrCodeFailedInsertDB:           "Insert Record DB Error",
+	ErrCodeInvalidProductType:       "Invalid Product Type",
 }

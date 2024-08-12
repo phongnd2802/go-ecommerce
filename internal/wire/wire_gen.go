@@ -24,3 +24,16 @@ func InitAccessRouterHandler(db *sql.DB) (*controllers.AccessController, error) 
 	accessController := controllers.NewAccessController(iAccessService)
 	return accessController, nil
 }
+
+// Injectors from wire.product.go:
+
+func InitProductRouterHandler(db *sql.DB) (*controllers.ProductController, error) {
+	store := database.NewStore(db)
+	iClothingRepository := repositories.NewClothingRepository(store)
+	iProductRepository := repositories.NewProductReposiroty(store, iClothingRepository)
+	iElectronicsRepository := repositories.NewElectronicRepository(store)
+	iFurnitureRepository := repositories.NewFurnitureRepository(store)
+	iProductService := services.NewProductFactory(iProductRepository, iClothingRepository, iElectronicsRepository, iFurnitureRepository)
+	productController := controllers.NewProductController(iProductService)
+	return productController, nil
+}
