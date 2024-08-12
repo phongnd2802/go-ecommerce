@@ -2,99 +2,49 @@ package services
 
 import (
 	"encoding/json"
-	"strconv"
 	"github.com/phongnd2802/go-ecommerce/internal/dtos"
 	"github.com/phongnd2802/go-ecommerce/internal/repositories"
 	"github.com/phongnd2802/go-ecommerce/pkg/response"
+	"strconv"
 )
 
 type productFactory struct {
-	Clothing IProduct
-	Electronic IProduct
-	Furniture IProduct
+	ProductTypes map[string]IProduct
 }
 
-// Create Product
-func (pf *productFactory) CreateProduct(
-	payload dtos.ProductCreateRequest,
-	productType string,
-) (*dtos.ProductCreateResponse, int) {
-	if productType == "Clothing" {
-		result, err := pf.Clothing.CreateProduct(payload)
-		if err != nil {
-			return nil, response.ErrCodeBadRequest
-		}
-		productPrice, _ := strconv.ParseFloat(result.ProductPrice, 64)
-		var productAttributes map[string]any
-		_ = json.Unmarshal(result.ProductAttributes, &productAttributes)
-		return &dtos.ProductCreateResponse{
-			ProductResponse: dtos.ProductResponse{
-				ID:                   result.ID,
-				ProductName:          result.ProductName,
-				ProductThumb:         result.ProductThumb,
-				ProductDescription:   result.ProductDescription.String,
-				ProductPrice:         float32(productPrice),
-				ProductQuantity:      int(result.ProductQuantity),
-				ProductType:          string(result.ProductType),
-				ProductShop:          result.ProductShop,
-				ProductAttributes:    productAttributes,
-				ProductRatingAverage: result.ProductRatingaverage.String,
-				CreatedAt:            result.CreatedAt.Time,
-				UpdatedAt:            result.UpdatedAt.Time,
-			},
-		}, response.CodeCreated
-	} else if productType == "Electronics" {
-			result, err := pf.Electronic.CreateProduct(payload)
-			if err != nil {
-				return nil, response.ErrCodeBadRequest
-			}
-			productPrice, _ := strconv.ParseFloat(result.ProductPrice, 64)
-			var productAttributes map[string]any
-			_ = json.Unmarshal(result.ProductAttributes, &productAttributes)
-			return &dtos.ProductCreateResponse{
-				ProductResponse: dtos.ProductResponse{
-					ID:                   result.ID,
-					ProductName:          result.ProductName,
-					ProductThumb:         result.ProductThumb,
-					ProductDescription:   result.ProductDescription.String,
-					ProductPrice:         float32(productPrice),
-					ProductQuantity:      int(result.ProductQuantity),
-					ProductType:          string(result.ProductType),
-					ProductShop:          result.ProductShop,
-					ProductAttributes:    productAttributes,
-					ProductRatingAverage: result.ProductRatingaverage.String,
-					CreatedAt:            result.CreatedAt.Time,
-					UpdatedAt:            result.UpdatedAt.Time,
-				},
-			}, response.CodeCreated
-	} else if productType == "Furniture" {
-		result, err := pf.Furniture.CreateProduct(payload)
-		if err != nil {
-			return nil, response.ErrCodeBadRequest
-		}
-		productPrice, _ := strconv.ParseFloat(result.ProductPrice, 64)
-		var productAttributes map[string]any
-		_ = json.Unmarshal(result.ProductAttributes, &productAttributes)
-		return &dtos.ProductCreateResponse{
-			ProductResponse: dtos.ProductResponse{
-				ID:                   result.ID,
-				ProductName:          result.ProductName,
-				ProductThumb:         result.ProductThumb,
-				ProductDescription:   result.ProductDescription.String,
-				ProductPrice:         float32(productPrice),
-				ProductQuantity:      int(result.ProductQuantity),
-				ProductType:          string(result.ProductType),
-				ProductShop:          result.ProductShop,
-				ProductAttributes:    productAttributes,
-				ProductRatingAverage: result.ProductRatingaverage.String,
-				CreatedAt:            result.CreatedAt.Time,
-				UpdatedAt:            result.UpdatedAt.Time,
-			},
-		}, response.CodeCreated
+// CreateProduct implements IProductService.
+func (p *productFactory) CreateProduct(payload dtos.ProductCreateRequest, productType string) (*dtos.ProductCreateResponse, int) {
+	productTypeRef, ok := p.ProductTypes[productType]
+	if !ok {
+		return nil, response.ErrCodeInvalidProductType
 	}
-	return nil, response.ErrCodeBadRequest
-}
 
+	result, err := productTypeRef.CreateProduct(payload)
+	if err != nil {
+		return nil, response.ErrCodeFailedInsertDB
+	}
+
+	productPrice, _ := strconv.ParseFloat(result.ProductPrice, 64)
+	var productAttributes map[string]any
+	_ = json.Unmarshal(result.ProductAttributes, &productAttributes)
+	return &dtos.ProductCreateResponse{
+		ProductResponse: dtos.ProductResponse{
+			ID:                   result.ID,
+			ProductName:          result.ProductName,
+			ProductThumb:         result.ProductThumb,
+			ProductDescription:   result.ProductDescription.String,
+			ProductPrice:         float32(productPrice),
+			ProductQuantity:      int(result.ProductQuantity),
+			ProductType:          string(result.ProductType),
+			ProductShop:          result.ProductShop,
+			ProductAttributes:    productAttributes,
+			ProductRatingAverage: result.ProductRatingaverage.String,
+			CreatedAt:            result.CreatedAt.Time,
+			UpdatedAt:            result.UpdatedAt.Time,
+		},
+	}, response.CodeCreated
+
+}
 
 func NewProductFactory(
 	productRepo repositories.IProductRepository,
@@ -102,10 +52,20 @@ func NewProductFactory(
 	electronicRepo repositories.IElectronicsRepository,
 	furnitureRepo repositories.IFurnitureRepository,
 ) IProductService {
+	productTypes := make(map[string]IProduct)
 	product := NewProduct(productRepo)
+
+	// Register Product Type
+	RegisterProductType(productTypes, "Clothing", NewClothing(product, clothingRepo))
+	RegisterProductType(productTypes, "Electronics", NewElectronic(product, electronicRepo))
+	RegisterProductType(productTypes, "Furniture", NewFurniture(product, furnitureRepo))
 	return &productFactory{
-		Clothing: NewClothing(product, clothingRepo),
-		Electronic: NewElectronic(product, electronicRepo),
-		Furniture: NewFurniture(product, furnitureRepo),
+		ProductTypes: productTypes,
 	}
 }
+
+func RegisterProductType(productTypes map[string]IProduct, productTypeString string, productTypeRef IProduct) {
+	productTypes[productTypeString] = productTypeRef	
+}
+
+
