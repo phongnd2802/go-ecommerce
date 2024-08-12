@@ -27,18 +27,23 @@ func (p *productFactory) CreateProduct(payload dtos.ProductCreateRequest, produc
 	productPrice, _ := strconv.ParseFloat(result.ProductPrice, 64)
 	var productAttributes map[string]any
 	_ = json.Unmarshal(result.ProductAttributes, &productAttributes)
+
+	var productVariations []string
+	_ = json.Unmarshal(result.ProductVariations, &productVariations)
 	return &dtos.ProductCreateResponse{
 		ProductResponse: dtos.ProductResponse{
 			ID:                   result.ID,
 			ProductName:          result.ProductName,
 			ProductThumb:         result.ProductThumb,
-			ProductDescription:   result.ProductDescription.String,
+			ProductDescription:   &result.ProductDescription.String,
 			ProductPrice:         float32(productPrice),
 			ProductQuantity:      int(result.ProductQuantity),
 			ProductType:          string(result.ProductType),
 			ProductShop:          result.ProductShop,
 			ProductAttributes:    productAttributes,
+			ProductVariations:    productVariations,
 			ProductRatingAverage: result.ProductRatingaverage.String,
+			ProductSlug:          result.ProductSlug.String,
 			CreatedAt:            result.CreatedAt.Time,
 			UpdatedAt:            result.UpdatedAt.Time,
 		},
@@ -65,7 +70,5 @@ func NewProductFactory(
 }
 
 func RegisterProductType(productTypes map[string]IProduct, productTypeString string, productTypeRef IProduct) {
-	productTypes[productTypeString] = productTypeRef	
+	productTypes[productTypeString] = productTypeRef
 }
-
-

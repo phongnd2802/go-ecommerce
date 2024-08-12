@@ -14,7 +14,7 @@ type IProductRepository interface {
 	CreateProduct(
 		productName string, productThumb string, productDescription *string,
 		productPrice float32, productQuantity int, productType string, productShop string,
-		productAttributes map[string]any,
+		productSlug string, productAttributes map[string]any,
 	) (*database.Product, error)
 }
 
@@ -27,7 +27,7 @@ type productRepository struct {
 func (pr *productRepository) CreateProduct(
 	productName string, productThumb string, productDescription *string, 
 	productPrice float32, productQuantity int, productType string, 
-	productShop string, productAttributes map[string]any,
+	productShop string, productSlug string, productAttributes map[string]any,
 ) (*database.Product, error) {
 	productAttributesJSON, err := json.Marshal(productAttributes)
 	if err != nil {
@@ -46,6 +46,10 @@ func (pr *productRepository) CreateProduct(
 		ProductQuantity: int32(productQuantity),
 		ProductType: database.ProductsProductType(productType),
 		ProductShop: productShop,
+		ProductSlug: sql.NullString{
+			String: productSlug,
+			Valid: true,
+		},
 		ProductAttributes: productAttributesJSON,
 	})
 

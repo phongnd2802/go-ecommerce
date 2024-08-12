@@ -15,8 +15,8 @@ const createProduct = `-- name: CreateProduct :exec
 INSERT INTO products(
     id, product_name, product_thumb, product_description,
     product_price, product_quantity, product_type, product_shop,
-    product_attributes
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    product_slug, product_attributes
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type CreateProductParams struct {
@@ -28,6 +28,7 @@ type CreateProductParams struct {
 	ProductQuantity    int32
 	ProductType        ProductsProductType
 	ProductShop        string
+	ProductSlug        sql.NullString
 	ProductAttributes  json.RawMessage
 }
 
@@ -41,13 +42,14 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) er
 		arg.ProductQuantity,
 		arg.ProductType,
 		arg.ProductShop,
+		arg.ProductSlug,
 		arg.ProductAttributes,
 	)
 	return err
 }
 
 const getProductByID = `-- name: GetProductByID :one
-SELECT id, product_name, product_thumb, product_description, product_price, product_quantity, product_type, product_shop, product_attributes, product_ratingaverage, product_variations, isdraft, ispublished, created_at, updated_at FROM products
+SELECT id, product_name, product_thumb, product_description, product_price, product_quantity, product_type, product_shop, product_attributes, product_ratingaverage, product_variations, isdraft, ispublished, created_at, updated_at, product_slug FROM products
 WHERE id = ?
 `
 
@@ -70,6 +72,7 @@ func (q *Queries) GetProductByID(ctx context.Context, id string) (Product, error
 		&i.Ispublished,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ProductSlug,
 	)
 	return i, err
 }

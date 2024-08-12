@@ -107,6 +107,7 @@ type Product struct {
 	Ispublished          sql.NullBool
 	CreatedAt            sql.NullTime
 	UpdatedAt            sql.NullTime
+	ProductSlug          sql.NullString
 }
 
 type Role struct {

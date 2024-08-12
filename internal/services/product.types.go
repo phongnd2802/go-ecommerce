@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/gosimple/slug"
 	database "github.com/phongnd2802/go-ecommerce/internal/database/sqlc"
 	"github.com/phongnd2802/go-ecommerce/internal/dtos"
 	"github.com/phongnd2802/go-ecommerce/internal/repositories"
@@ -26,9 +27,10 @@ func NewProduct(productRepo repositories.IProductRepository) IProduct {
 }
 
 func (p *product) CreateProduct(payload dtos.ProductCreateRequest, productShop string) (*database.Product, error) {
+	productSlug := slug.Make(payload.ProductName)
 	result, err := p.productRepo.CreateProduct(
 		payload.ProductName, payload.ProductThumb, &payload.ProductDescription, payload.ProductPrice,
-		payload.ProductQuantity, payload.ProductType, productShop, payload.ProductAttributes,
+		payload.ProductQuantity, payload.ProductType, productShop, productSlug,payload.ProductAttributes,
 	)
 	if err != nil {
 		return nil, err
