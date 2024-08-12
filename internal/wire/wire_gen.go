@@ -29,8 +29,8 @@ func InitAccessRouterHandler(db *sql.DB) (*controllers.AccessController, error) 
 
 func InitProductRouterHandler(db *sql.DB) (*controllers.ProductController, error) {
 	store := database.NewStore(db)
+	iProductRepository := repositories.NewProductReposiroty(store)
 	iClothingRepository := repositories.NewClothingRepository(store)
-	iProductRepository := repositories.NewProductReposiroty(store, iClothingRepository)
 	iElectronicsRepository := repositories.NewElectronicRepository(store)
 	iFurnitureRepository := repositories.NewFurnitureRepository(store)
 	iProductService := services.NewProductFactory(iProductRepository, iClothingRepository, iElectronicsRepository, iFurnitureRepository)

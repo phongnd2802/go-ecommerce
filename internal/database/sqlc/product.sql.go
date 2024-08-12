@@ -48,6 +48,60 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) er
 	return err
 }
 
+const getAllDraftsForShop = `-- name: GetAllDraftsForShop :many
+SELECT id, product_name, product_thumb, product_description, product_price, product_quantity, product_type, product_shop, product_attributes, product_ratingaverage, product_variations, isdraft, ispublished, created_at, updated_at, product_slug FROM products
+WHERE isDraft = 1 AND product_shop = ?
+ORDER BY updated_at DESC
+LIMIT ?
+OFFSET ?
+`
+
+type GetAllDraftsForShopParams struct {
+	ProductShop string
+	Limit       int32
+	Offset      int32
+}
+
+func (q *Queries) GetAllDraftsForShop(ctx context.Context, arg GetAllDraftsForShopParams) ([]Product, error) {
+	rows, err := q.db.QueryContext(ctx, getAllDraftsForShop, arg.ProductShop, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Product
+	for rows.Next() {
+		var i Product
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProductName,
+			&i.ProductThumb,
+			&i.ProductDescription,
+			&i.ProductPrice,
+			&i.ProductQuantity,
+			&i.ProductType,
+			&i.ProductShop,
+			&i.ProductAttributes,
+			&i.ProductRatingaverage,
+			&i.ProductVariations,
+			&i.Isdraft,
+			&i.Ispublished,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ProductSlug,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getProductByID = `-- name: GetProductByID :one
 SELECT id, product_name, product_thumb, product_description, product_price, product_quantity, product_type, product_shop, product_attributes, product_ratingaverage, product_variations, isdraft, ispublished, created_at, updated_at, product_slug FROM products
 WHERE id = ?

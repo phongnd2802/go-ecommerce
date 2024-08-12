@@ -22,6 +22,8 @@ func (pr *ProductRouter) InitProductRouter(Router *gin.RouterGroup) {
 	productPrivateRouter.Use(middlewares.Authentication())
 	{
 		productPrivateRouter.POST("/", productController.CreateProduct)
+
+		productPrivateRouter.GET("/drafts", productController.GetAllDraftsForShop)
 	}
 
 }

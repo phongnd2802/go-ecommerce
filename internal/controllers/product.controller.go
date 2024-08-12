@@ -29,3 +29,9 @@ func (pc *ProductController) CreateProduct(ctx *gin.Context) {
 	data, code := pc.productFactory.CreateProduct(payload, payload.ProductType, shopID)
 	response.SuccessResponse(ctx, code, data)
 }
+
+func (pc *ProductController) GetAllDraftsForShop(ctx *gin.Context) {
+	shopID := ctx.Request.Header.Get("x-client-id")
+	data, code := pc.productFactory.GetAllDraftsForShop(shopID)
+	response.SuccessResponse(ctx, code, data)
+}

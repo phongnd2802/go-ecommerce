@@ -9,3 +9,11 @@ INSERT INTO products(
 -- name: GetProductByID :one
 SELECT * FROM products
 WHERE id = ?;
+
+-- name: GetAllDraftsForShop :many
+SELECT * FROM products
+WHERE isDraft = 1 AND product_shop = ?
+ORDER BY updated_at DESC
+LIMIT ?
+OFFSET ?;
+
