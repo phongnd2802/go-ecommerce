@@ -6,6 +6,11 @@ import (
 	"github.com/phongnd2802/go-ecommerce/internal/repositories"
 )
 
+type IProduct interface {
+	CreateProduct(payload dtos.ProductCreateRequest) (*database.Product, error)
+}
+
+
 ////////////////////////////////////
 /////// 	Product			////////
 //////////////////////////////////
@@ -14,7 +19,7 @@ type product struct {
 	productRepo repositories.IProductRepository
 }
 
-func NewProduct(productRepo repositories.IProductRepository) *product {
+func NewProduct(productRepo repositories.IProductRepository) IProduct {
 	return &product{
 		productRepo: productRepo,
 	}
@@ -39,12 +44,12 @@ func (p *product) CreateProduct(payload dtos.ProductCreateRequest) (*database.Pr
 //////////////////////////////////
 
 type clothing struct {
-	*product
+	product IProduct
 	clothingRepo repositories.IClothingRepository
 }
 
 
-func NewClothing(product *product, clothingRepo repositories.IClothingRepository) *clothing {
+func NewClothing(product IProduct, clothingRepo repositories.IClothingRepository) IProduct {
 	return &clothing{
 		product: product,
 		clothingRepo: clothingRepo,
@@ -72,14 +77,14 @@ func (c *clothing) CreateProduct(payload dtos.ProductCreateRequest) (*database.P
 /////// 	Electronics		////////
 //////////////////////////////////
 type electronic struct {
-	*product
+	product IProduct
 	electronicRepo repositories.IElectronicsRepository
 }
 
 func NewElectronic(
-	product *product,
+	product IProduct,
 	electronicRepo repositories.IElectronicsRepository,
-) *electronic {
+) IProduct {
 	return &electronic{
 		product: product,
 		electronicRepo: electronicRepo,
@@ -110,11 +115,11 @@ func (e *electronic) CreateProduct(payload dtos.ProductCreateRequest) (*database
 //////////////////////////////////
 
 type furniture struct {
-	*product
+	product IProduct
 	furnitureRepo repositories.IFurnitureRepository
 }
 
-func NewFurniture(product *product, furnitureRepo repositories.IFurnitureRepository) *furniture {
+func NewFurniture(product IProduct, furnitureRepo repositories.IFurnitureRepository) *furniture {
 	return &furniture{
 		product: product,
 		furnitureRepo: furnitureRepo,

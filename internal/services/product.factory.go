@@ -9,9 +9,9 @@ import (
 )
 
 type productFactory struct {
-	Clothing *clothing
-	Electronic *electronic
-	Furniture *furniture
+	Clothing IProduct
+	Electronic IProduct
+	Furniture IProduct
 }
 
 // Create Product
