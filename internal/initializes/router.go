@@ -33,6 +33,7 @@ func initRouter() *gin.Engine {
 	}
 	{
 		userRouter.InitAccessRouter(MainGroup)
+		userRouter.InitProductRouter(MainGroup)
 	}
 	{
 		managerRouter.InitAccessRouter(MainGroup)

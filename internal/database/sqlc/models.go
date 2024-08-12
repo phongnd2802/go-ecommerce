@@ -6,13 +6,107 @@ package database
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"encoding/json"
+	"fmt"
 )
+
+type ProductsProductType string
+
+const (
+	ProductsProductTypeElectronics ProductsProductType = "Electronics"
+	ProductsProductTypeClothing    ProductsProductType = "Clothing"
+	ProductsProductTypeFurniture   ProductsProductType = "Furniture"
+)
+
+func (e *ProductsProductType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ProductsProductType(s)
+	case string:
+		*e = ProductsProductType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ProductsProductType: %T", src)
+	}
+	return nil
+}
+
+type NullProductsProductType struct {
+	ProductsProductType ProductsProductType
+	Valid               bool // Valid is true if ProductsProductType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullProductsProductType) Scan(value interface{}) error {
+	if value == nil {
+		ns.ProductsProductType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ProductsProductType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullProductsProductType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ProductsProductType), nil
+}
 
 type ApiKey struct {
 	ID          int32
 	Akey        string
 	Status      sql.NullBool
 	Permissions string
+}
+
+type Clothe struct {
+	ID          string
+	Brand       string
+	ProductShop string
+	CreatedAt   sql.NullTime
+	UpdatedAt   sql.NullTime
+	Size        string
+	Material    string
+}
+
+type Electronic struct {
+	ID           string
+	Manufacturer string
+	ProductShop  string
+	CreatedAt    sql.NullTime
+	UpdatedAt    sql.NullTime
+	Model        string
+	Color        string
+}
+
+type Furniture struct {
+	ID          string
+	Brand       string
+	ProductShop string
+	CreatedAt   sql.NullTime
+	UpdatedAt   sql.NullTime
+	Size        string
+	Material    string
+}
+
+type Product struct {
+	ID                   string
+	ProductName          string
+	ProductThumb         string
+	ProductDescription   sql.NullString
+	ProductPrice         string
+	ProductQuantity      int32
+	ProductType          ProductsProductType
+	ProductShop          string
+	ProductAttributes    json.RawMessage
+	ProductRatingaverage sql.NullString
+	ProductVariations    json.RawMessage
+	Isdraft              sql.NullBool
+	Ispublished          sql.NullBool
+	CreatedAt            sql.NullTime
+	UpdatedAt            sql.NullTime
 }
 
 type Role struct {
