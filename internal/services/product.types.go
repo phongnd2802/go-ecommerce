@@ -7,7 +7,7 @@ import (
 )
 
 type IProduct interface {
-	CreateProduct(payload dtos.ProductCreateRequest) (*database.Product, error)
+	CreateProduct(payload dtos.ProductCreateRequest, productShop string) (*database.Product, error)
 }
 
 
@@ -25,10 +25,10 @@ func NewProduct(productRepo repositories.IProductRepository) IProduct {
 	}
 }
 
-func (p *product) CreateProduct(payload dtos.ProductCreateRequest) (*database.Product, error) {
+func (p *product) CreateProduct(payload dtos.ProductCreateRequest, productShop string) (*database.Product, error) {
 	result, err := p.productRepo.CreateProduct(
 		payload.ProductName, payload.ProductThumb, &payload.ProductDescription, payload.ProductPrice,
-		payload.ProductQuantity, payload.ProductType, payload.ProductShop, payload.ProductAttributes,
+		payload.ProductQuantity, payload.ProductType, productShop, payload.ProductAttributes,
 	)
 	if err != nil {
 		return nil, err
@@ -56,8 +56,8 @@ func NewClothing(product IProduct, clothingRepo repositories.IClothingRepository
 	}
 }
 
-func (c *clothing) CreateProduct(payload dtos.ProductCreateRequest) (*database.Product, error) {
-	newProduct, err := c.product.CreateProduct(payload)
+func (c *clothing) CreateProduct(payload dtos.ProductCreateRequest, productShop string) (*database.Product, error) {
+	newProduct, err := c.product.CreateProduct(payload, productShop)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (c *clothing) CreateProduct(payload dtos.ProductCreateRequest) (*database.P
 	brand := payload.ProductAttributes["brand"].(string)
 	size := payload.ProductAttributes["size"].(string)
 	material := payload.ProductAttributes["material"].(string)
-	_, err = c.clothingRepo.CreateClothing(newProduct.ID, brand, size, material, payload.ProductShop)
+	_, err = c.clothingRepo.CreateClothing(newProduct.ID, brand, size, material, productShop)
 	if err != nil {
 		return nil, err
 	}
@@ -91,8 +91,8 @@ func NewElectronic(
 	}
 }
 
-func (e *electronic) CreateProduct(payload dtos.ProductCreateRequest) (*database.Product, error) {
-	newProduct, err := e.product.CreateProduct(payload)
+func (e *electronic) CreateProduct(payload dtos.ProductCreateRequest, productShop string) (*database.Product, error) {
+	newProduct, err := e.product.CreateProduct(payload, productShop)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (e *electronic) CreateProduct(payload dtos.ProductCreateRequest) (*database
 	manufacturer := payload.ProductAttributes["manufacturer"].(string)
 	model := payload.ProductAttributes["model"].(string)
 	color := payload.ProductAttributes["color"].(string)
-	_, err = e.electronicRepo.CreateElectronic(newProduct.ID, manufacturer, model, color, payload.ProductShop)
+	_, err = e.electronicRepo.CreateElectronic(newProduct.ID, manufacturer, model, color, productShop)
 	if err != nil {
 		return nil, err
 	}
@@ -119,15 +119,15 @@ type furniture struct {
 	furnitureRepo repositories.IFurnitureRepository
 }
 
-func NewFurniture(product IProduct, furnitureRepo repositories.IFurnitureRepository) *furniture {
+func NewFurniture(product IProduct, furnitureRepo repositories.IFurnitureRepository) IProduct {
 	return &furniture{
 		product: product,
 		furnitureRepo: furnitureRepo,
 	}
 }
 
-func (f *furniture) CreateProduct(payload dtos.ProductCreateRequest) (*database.Product, error) {
-	newProduct, err := f.product.CreateProduct(payload)
+func (f *furniture) CreateProduct(payload dtos.ProductCreateRequest, productShop string) (*database.Product, error) {
+	newProduct, err := f.product.CreateProduct(payload, productShop)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func (f *furniture) CreateProduct(payload dtos.ProductCreateRequest) (*database.
 	brand := payload.ProductAttributes["brand"].(string)
 	size := payload.ProductAttributes["size"].(string)
 	material := payload.ProductAttributes["material"].(string)
-	_, err = f.furnitureRepo.CreateFurniture(newProduct.ID, brand, size, material, payload.ProductShop)
+	_, err = f.furnitureRepo.CreateFurniture(newProduct.ID, brand, size, material, productShop)
 	if err != nil {
 		return nil, err
 	}
