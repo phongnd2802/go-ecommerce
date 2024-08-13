@@ -33,4 +33,8 @@ type (
 	ProductCreateResponse struct {
 		ProductResponse `json:"product"`
 	}
+
+	ProductUpdateResponse struct {
+		ID string `json:"id"`
+	}
 )
