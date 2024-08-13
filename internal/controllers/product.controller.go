@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"strconv"
 	"github.com/gin-gonic/gin"
 	"github.com/phongnd2802/go-ecommerce/internal/dtos"
 	"github.com/phongnd2802/go-ecommerce/internal/services"
@@ -21,7 +22,25 @@ func NewProductController(productFactory services.IProductService) *ProductContr
 
 func (pc *ProductController) GetAllPublishedForShop(ctx *gin.Context) {
 	shopID := ctx.Request.Header.Get("x-client-id")
-	data, code := pc.productFactory.GetAllPublishedForShop(shopID)
+	limit := ctx.Query("limit")
+	if limit == "" {
+		limit = "50"
+	}
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		response.ErrorResposne(ctx, response.ErrCodeBadRequest)
+		return
+	}
+	skip := ctx.Query("skip")
+	if skip == "" {
+		skip = "0"
+	}
+	skipInt, err := strconv.Atoi(skip)
+	if err != nil {
+		response.ErrorResposne(ctx, response.ErrCodeBadRequest)
+		return
+	}
+	data, code := pc.productFactory.GetAllPublishedForShop(shopID, limitInt, skipInt)
 	response.SuccessResponse(ctx, code, data)
 }
 
@@ -52,6 +71,24 @@ func (pc *ProductController) CreateProduct(ctx *gin.Context) {
 
 func (pc *ProductController) GetAllDraftsForShop(ctx *gin.Context) {
 	shopID := ctx.Request.Header.Get("x-client-id")
-	data, code := pc.productFactory.GetAllDraftsForShop(shopID)
+	limit := ctx.Query("limit")
+	if limit == "" {
+		limit = "50"
+	}
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		response.ErrorResposne(ctx, response.ErrCodeBadRequest)
+		return
+	}
+	skip := ctx.Query("skip")
+	if skip == "" {
+		skip = "0"
+	}
+	skipInt, err := strconv.Atoi(skip)
+	if err != nil {
+		response.ErrorResposne(ctx, response.ErrCodeBadRequest)
+		return
+	}
+	data, code := pc.productFactory.GetAllDraftsForShop(shopID, limitInt, skipInt)
 	response.SuccessResponse(ctx, code, data)
 }
