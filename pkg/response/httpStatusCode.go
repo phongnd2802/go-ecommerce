@@ -3,6 +3,10 @@ package response
 const (
 	CodeSuccess = 20000
 	CodeCreated = 20001
+	CodeUpdated = 20004
+
+	CodePublishProductSuccess   = 20011
+	CodeUnPublishProductSuccess = 20012
 )
 
 const (
@@ -16,13 +20,17 @@ const (
 	ErrCodeShopNotExist             = 40021
 	ErrCodeRefreshTokenUsed         = 40022
 	ErrCodeFailedInsertDB           = 50001
+	ErrCodeFailedQueryDB            = 50002
 	ErrCodeInvalidProductType       = 40023
+	ErrCodeNotFoundProduct          = 40024
 )
 
 var msg = map[int]string{
-	CodeSuccess: "Success",
-	CodeCreated: "Created",
-
+	CodeSuccess:                     "Success",
+	CodeCreated:                     "Created",
+	CodeUpdated:                     "Updated",
+	CodePublishProductSuccess:       "Publish Product Success",
+	CodeUnPublishProductSuccess:     "UnPublish Product Success",
 	ErrCodeBadRequest:               "Bad Request",
 	ErrCodeInternalServer:           "Internal Server Error",
 	ErrCodeShopExist:                "Email already exists",
@@ -34,4 +42,6 @@ var msg = map[int]string{
 	ErrCodeRefreshTokenUsed:         "Please Login again",
 	ErrCodeFailedInsertDB:           "Insert Record DB Error",
 	ErrCodeInvalidProductType:       "Invalid Product Type",
+	ErrCodeFailedQueryDB:            "Query Record DB Error",
+	ErrCodeNotFoundProduct:          "Not Found Product For Shop",
 }
