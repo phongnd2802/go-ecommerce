@@ -22,8 +22,11 @@ func (pr *ProductRouter) InitProductRouter(Router *gin.RouterGroup) {
 	productPrivateRouter.Use(middlewares.Authentication())
 	{
 		productPrivateRouter.POST("/", productController.CreateProduct)
+		productPrivateRouter.PATCH("/publish/:id", productController.PublishProductByShop)
+		productPrivateRouter.PATCH("/unpublish/:id", productController.UnPublishProductByShop)
 
-		productPrivateRouter.GET("/drafts", productController.GetAllDraftsForShop)
+		productPrivateRouter.GET("/drafts/all", productController.GetAllDraftsForShop)
+		productPrivateRouter.GET("/published/all", productController.GetAllPublishedForShop)
 	}
 
 }

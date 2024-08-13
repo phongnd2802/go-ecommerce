@@ -19,11 +19,31 @@ func NewProductController(productFactory services.IProductService) *ProductContr
 }
 
 
+func (pc *ProductController) GetAllPublishedForShop(ctx *gin.Context) {
+	shopID := ctx.Request.Header.Get("x-client-id")
+	data, code := pc.productFactory.GetAllPublishedForShop(shopID)
+	response.SuccessResponse(ctx, code, data)
+}
+
+func (pc *ProductController) UnPublishProductByShop(ctx *gin.Context) {
+	productID := ctx.Param("id")
+	shopID := ctx.Request.Header.Get("x-client-id")
+	data, code := pc.productFactory.UnPublishProductByShop(shopID, productID)
+	response.SuccessResponse(ctx, code, data)
+}
+
+func (pc *ProductController) PublishProductByShop(ctx *gin.Context) {
+	productID := ctx.Param("id")
+	shopID := ctx.Request.Header.Get("x-client-id")
+	data, code := pc.productFactory.PublishProductByShop(shopID, productID)
+	response.SuccessResponse(ctx, code, data)
+}
+
 func (pc *ProductController) CreateProduct(ctx *gin.Context) {
 	var payload dtos.ProductCreateRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		response.ValidatorErrorResponse(ctx, response.ErrCodeBadRequest)
-		return
+		return 
 	}
 	shopID := ctx.Request.Header.Get("x-client-id")
 	data, code := pc.productFactory.CreateProduct(payload, payload.ProductType, shopID)

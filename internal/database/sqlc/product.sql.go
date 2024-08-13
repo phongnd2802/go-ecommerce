@@ -48,22 +48,95 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) er
 	return err
 }
 
-const getAllDraftsForShop = `-- name: GetAllDraftsForShop :many
+const getProductByID = `-- name: GetProductByID :one
 SELECT id, product_name, product_thumb, product_description, product_price, product_quantity, product_type, product_shop, product_attributes, product_ratingaverage, product_variations, isdraft, ispublished, created_at, updated_at, product_slug FROM products
-WHERE isDraft = 1 AND product_shop = ?
+WHERE id = ?
+`
+
+func (q *Queries) GetProductByID(ctx context.Context, id string) (Product, error) {
+	row := q.db.QueryRowContext(ctx, getProductByID, id)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.ProductName,
+		&i.ProductThumb,
+		&i.ProductDescription,
+		&i.ProductPrice,
+		&i.ProductQuantity,
+		&i.ProductType,
+		&i.ProductShop,
+		&i.ProductAttributes,
+		&i.ProductRatingaverage,
+		&i.ProductVariations,
+		&i.Isdraft,
+		&i.Ispublished,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ProductSlug,
+	)
+	return i, err
+}
+
+const getProductByShopAndID = `-- name: GetProductByShopAndID :one
+SELECT id, product_name, product_thumb, product_description, product_price, product_quantity, product_type, product_shop, product_attributes, product_ratingaverage, product_variations, isdraft, ispublished, created_at, updated_at, product_slug FROM products
+WHERE id = ? AND product_shop = ?
+`
+
+type GetProductByShopAndIDParams struct {
+	ID          string
+	ProductShop string
+}
+
+func (q *Queries) GetProductByShopAndID(ctx context.Context, arg GetProductByShopAndIDParams) (Product, error) {
+	row := q.db.QueryRowContext(ctx, getProductByShopAndID, arg.ID, arg.ProductShop)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.ProductName,
+		&i.ProductThumb,
+		&i.ProductDescription,
+		&i.ProductPrice,
+		&i.ProductQuantity,
+		&i.ProductType,
+		&i.ProductShop,
+		&i.ProductAttributes,
+		&i.ProductRatingaverage,
+		&i.ProductVariations,
+		&i.Isdraft,
+		&i.Ispublished,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ProductSlug,
+	)
+	return i, err
+}
+
+const queryProrductForShop = `-- name: QueryProrductForShop :many
+SELECT id, product_name, product_thumb, product_description, product_price, product_quantity, product_type, product_shop, product_attributes, product_ratingaverage, product_variations, isdraft, ispublished, created_at, updated_at, product_slug FROM products
+WHERE isDraft = ? 
+AND isPublished = ?
+AND product_shop = ?
 ORDER BY updated_at DESC
 LIMIT ?
 OFFSET ?
 `
 
-type GetAllDraftsForShopParams struct {
+type QueryProrductForShopParams struct {
+	Isdraft     sql.NullBool
+	Ispublished sql.NullBool
 	ProductShop string
 	Limit       int32
 	Offset      int32
 }
 
-func (q *Queries) GetAllDraftsForShop(ctx context.Context, arg GetAllDraftsForShopParams) ([]Product, error) {
-	rows, err := q.db.QueryContext(ctx, getAllDraftsForShop, arg.ProductShop, arg.Limit, arg.Offset)
+func (q *Queries) QueryProrductForShop(ctx context.Context, arg QueryProrductForShopParams) ([]Product, error) {
+	rows, err := q.db.QueryContext(ctx, queryProrductForShop,
+		arg.Isdraft,
+		arg.Ispublished,
+		arg.ProductShop,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -102,31 +175,19 @@ func (q *Queries) GetAllDraftsForShop(ctx context.Context, arg GetAllDraftsForSh
 	return items, nil
 }
 
-const getProductByID = `-- name: GetProductByID :one
-SELECT id, product_name, product_thumb, product_description, product_price, product_quantity, product_type, product_shop, product_attributes, product_ratingaverage, product_variations, isdraft, ispublished, created_at, updated_at, product_slug FROM products
+const updateStatusProductByShop = `-- name: UpdateStatusProductByShop :exec
+UPDATE products 
+SET isPublished = ?, isDraft = ? 
 WHERE id = ?
 `
 
-func (q *Queries) GetProductByID(ctx context.Context, id string) (Product, error) {
-	row := q.db.QueryRowContext(ctx, getProductByID, id)
-	var i Product
-	err := row.Scan(
-		&i.ID,
-		&i.ProductName,
-		&i.ProductThumb,
-		&i.ProductDescription,
-		&i.ProductPrice,
-		&i.ProductQuantity,
-		&i.ProductType,
-		&i.ProductShop,
-		&i.ProductAttributes,
-		&i.ProductRatingaverage,
-		&i.ProductVariations,
-		&i.Isdraft,
-		&i.Ispublished,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.ProductSlug,
-	)
-	return i, err
+type UpdateStatusProductByShopParams struct {
+	Ispublished sql.NullBool
+	Isdraft     sql.NullBool
+	ID          string
+}
+
+func (q *Queries) UpdateStatusProductByShop(ctx context.Context, arg UpdateStatusProductByShopParams) error {
+	_, err := q.db.ExecContext(ctx, updateStatusProductByShop, arg.Ispublished, arg.Isdraft, arg.ID)
+	return err
 }
