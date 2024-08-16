@@ -175,6 +175,46 @@ func (q *Queries) QueryProrductForShop(ctx context.Context, arg QueryProrductFor
 	return items, nil
 }
 
+const updateProduct = `-- name: UpdateProduct :exec
+UPDATE products
+SET product_name = ?,
+    product_thumb = ?,
+    product_description = ?,
+    product_price = ?,
+    product_quantity = ?,
+    product_type = ?,
+    product_slug = ?,
+    product_attributes = ?
+WHERE id = ?
+`
+
+type UpdateProductParams struct {
+	ProductName        string
+	ProductThumb       string
+	ProductDescription sql.NullString
+	ProductPrice       string
+	ProductQuantity    int32
+	ProductType        ProductsProductType
+	ProductSlug        sql.NullString
+	ProductAttributes  json.RawMessage
+	ID                 string
+}
+
+func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) error {
+	_, err := q.db.ExecContext(ctx, updateProduct,
+		arg.ProductName,
+		arg.ProductThumb,
+		arg.ProductDescription,
+		arg.ProductPrice,
+		arg.ProductQuantity,
+		arg.ProductType,
+		arg.ProductSlug,
+		arg.ProductAttributes,
+		arg.ID,
+	)
+	return err
+}
+
 const updateStatusProductByShop = `-- name: UpdateStatusProductByShop :exec
 UPDATE products 
 SET isPublished = ?, isDraft = ? 

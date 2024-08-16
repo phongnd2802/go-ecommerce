@@ -9,8 +9,8 @@ import (
 
 type IProduct interface {
 	CreateProduct(payload dtos.ProductCreateRequest, productShop string) (*database.Product, error)
+	UpdateProduct(bodyUpdate dtos.ProductUpdateRequest, productID string) (*database.Product, error)
 }
-
 
 ////////////////////////////////////
 /////// 	Product			////////
@@ -20,17 +20,26 @@ type product struct {
 	productRepo repositories.IProductRepository
 }
 
-func NewProduct(productRepo repositories.IProductRepository) IProduct {
-	return &product{
-		productRepo: productRepo,
+// UpdateProduct implements IProduct.
+func (p *product) UpdateProduct(bodyUpdate dtos.ProductUpdateRequest, productID string) (*database.Product, error) {
+	productSlug := slug.Make(bodyUpdate.ProductName)
+	result, err := p.productRepo.UpdateProductByID(
+		productID, bodyUpdate.ProductName, bodyUpdate.ProductThumb,
+		&bodyUpdate.ProductDescription, bodyUpdate.ProductPrice, bodyUpdate.ProductQuantity,
+		bodyUpdate.ProductType, productSlug, bodyUpdate.ProductAttributes,
+	)
+	if err != nil {
+		return nil, err
 	}
+
+	return result, err
 }
 
 func (p *product) CreateProduct(payload dtos.ProductCreateRequest, productShop string) (*database.Product, error) {
 	productSlug := slug.Make(payload.ProductName)
 	result, err := p.productRepo.CreateProduct(
 		payload.ProductName, payload.ProductThumb, &payload.ProductDescription, payload.ProductPrice,
-		payload.ProductQuantity, payload.ProductType, productShop, productSlug,payload.ProductAttributes,
+		payload.ProductQuantity, payload.ProductType, productShop, productSlug, payload.ProductAttributes,
 	)
 	if err != nil {
 		return nil, err
@@ -38,22 +47,71 @@ func (p *product) CreateProduct(payload dtos.ProductCreateRequest, productShop s
 	return result, nil
 }
 
-
-
+func NewProduct(productRepo repositories.IProductRepository) IProduct {
+	return &product{
+		productRepo: productRepo,
+	}
+}
 
 ////////////////////////////////////
 /////// 	Clothing		///////
 //////////////////////////////////
 
 type clothing struct {
-	product IProduct
+	product      IProduct
 	clothingRepo repositories.IClothingRepository
 }
 
+// UpdateProduct implements IProduct.
+func (c *clothing) UpdateProduct(bodyUpdate dtos.ProductUpdateRequest, productID string) (*database.Product, error) {
+	if bodyUpdate.ProductAttributes != nil {
+		// Update Clothing
+		foundProduct, err := c.clothingRepo.GetClothingByID(productID)
+		if err != nil {
+			return nil, err
+		}
+
+		var brand, size, material string
+
+		if v, ok := bodyUpdate.ProductAttributes["brand"].(string); ok && v != "" {
+			brand = v
+		} else {
+			brand = foundProduct.Brand
+		}
+
+
+		if v, ok := bodyUpdate.ProductAttributes["size"].(string); ok && v != "" {
+			size = v
+		} else {
+			size = foundProduct.Size
+		}
+
+
+		if v, ok := bodyUpdate.ProductAttributes["material"].(string); ok && v != "" {
+			material = v
+		} else {
+			material = foundProduct.Material
+		}
+
+		err = c.clothingRepo.UpdateClothing(productID, brand, size, material)
+		if err != nil {
+			return nil, err
+		}
+	}
+	// Update Product
+	updatedProduct, err := c.product.UpdateProduct(bodyUpdate, productID)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedProduct, nil
+
+
+}
 
 func NewClothing(product IProduct, clothingRepo repositories.IClothingRepository) IProduct {
 	return &clothing{
-		product: product,
+		product:      product,
 		clothingRepo: clothingRepo,
 	}
 }
@@ -72,15 +130,19 @@ func (c *clothing) CreateProduct(payload dtos.ProductCreateRequest, productShop 
 		return nil, err
 	}
 	return newProduct, nil
-} 
+}
 
-
-////////////////////////////////////
-/////// 	Electronics		////////
-//////////////////////////////////
+// //////////////////////////////////
+// ///// 	Electronics		////////
+// ////////////////////////////////
 type electronic struct {
-	product IProduct
+	product        IProduct
 	electronicRepo repositories.IElectronicsRepository
+}
+
+// UpdateProduct implements IProduct.
+func (e *electronic) UpdateProduct(bodyUpdate dtos.ProductUpdateRequest, productID string) (*database.Product, error) {
+	panic("unimplemented")
 }
 
 func NewElectronic(
@@ -88,7 +150,7 @@ func NewElectronic(
 	electronicRepo repositories.IElectronicsRepository,
 ) IProduct {
 	return &electronic{
-		product: product,
+		product:        product,
 		electronicRepo: electronicRepo,
 	}
 }
@@ -110,20 +172,23 @@ func (e *electronic) CreateProduct(payload dtos.ProductCreateRequest, productSho
 	return newProduct, nil
 }
 
-
-
 ////////////////////////////////////
 /////// 	Furniture		////////
 //////////////////////////////////
 
 type furniture struct {
-	product IProduct
+	product       IProduct
 	furnitureRepo repositories.IFurnitureRepository
+}
+
+// UpdateProduct implements IProduct.
+func (f *furniture) UpdateProduct(bodyUpdate dtos.ProductUpdateRequest, productID string) (*database.Product, error) {
+	panic("unimplemented")
 }
 
 func NewFurniture(product IProduct, furnitureRepo repositories.IFurnitureRepository) IProduct {
 	return &furniture{
-		product: product,
+		product:       product,
 		furnitureRepo: furnitureRepo,
 	}
 }

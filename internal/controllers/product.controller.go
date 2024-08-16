@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/phongnd2802/go-ecommerce/internal/dtos"
 	"github.com/phongnd2802/go-ecommerce/internal/services"
@@ -17,6 +18,22 @@ func NewProductController(productFactory services.IProductService) *ProductContr
 	return &ProductController{
 		productFactory: productFactory,
 	}
+}
+
+func (pc *ProductController) GetProductByID(ctx *gin.Context) {
+	productID := ctx.Param("id")
+	shopID := ctx.Request.Header.Get("x-client-id")
+	data, code := pc.productFactory.GetProducByIDForShop(shopID, productID)
+	response.SuccessResponse(ctx, code, data)
+}
+
+
+func (pc *ProductController) UpdateProduct(ctx *gin.Context) {
+	productID := ctx.Param("id")
+	var bodyUpdate dtos.ProductUpdateRequest
+	_ = ctx.ShouldBindJSON(&bodyUpdate)
+	data, code := pc.productFactory.UpdateProduct(bodyUpdate, bodyUpdate.ProductType, productID)
+	response.SuccessResponse(ctx, code, data)
 }
 
 
