@@ -21,6 +21,7 @@ const (
 	ErrCodeRefreshTokenUsed         = 40022
 	ErrCodeFailedInsertDB           = 50001
 	ErrCodeFailedQueryDB            = 50002
+	ErrCodeFailedUpdateDB           = 50003
 	ErrCodeInvalidProductType       = 40023
 	ErrCodeNotFoundProduct          = 40024
 )
@@ -44,4 +45,5 @@ var msg = map[int]string{
 	ErrCodeInvalidProductType:       "Invalid Product Type",
 	ErrCodeFailedQueryDB:            "Query Record DB Error",
 	ErrCodeNotFoundProduct:          "Not Found Product For Shop",
+	ErrCodeFailedUpdateDB:           "Update Resource Failed",
 }

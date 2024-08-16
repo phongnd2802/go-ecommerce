@@ -53,3 +53,28 @@ func (q *Queries) GetClothingByID(ctx context.Context, id string) (Clothe, error
 	)
 	return i, err
 }
+
+const updateClothingByID = `-- name: UpdateClothingByID :exec
+UPDATE clothes 
+SET brand = ?,
+    size = ?,
+    material = ?
+WHERE id = ?
+`
+
+type UpdateClothingByIDParams struct {
+	Brand    string
+	Size     string
+	Material string
+	ID       string
+}
+
+func (q *Queries) UpdateClothingByID(ctx context.Context, arg UpdateClothingByIDParams) error {
+	_, err := q.db.ExecContext(ctx, updateClothingByID,
+		arg.Brand,
+		arg.Size,
+		arg.Material,
+		arg.ID,
+	)
+	return err
+}

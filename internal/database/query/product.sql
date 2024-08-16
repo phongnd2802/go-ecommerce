@@ -27,3 +27,15 @@ WHERE id = ? AND product_shop = ?;
 UPDATE products 
 SET isPublished = ?, isDraft = ? 
 WHERE id = ?;
+
+-- name: UpdateProduct :exec
+UPDATE products
+SET product_name = ?,
+    product_thumb = ?,
+    product_description = ?,
+    product_price = ?,
+    product_quantity = ?,
+    product_type = ?,
+    product_slug = ?,
+    product_attributes = ?
+WHERE id = ?;
