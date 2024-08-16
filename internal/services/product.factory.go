@@ -13,6 +13,52 @@ type productFactory struct {
 	ProductTypes map[string]IProduct
 }
 
+// GetProducByIDForShop implements IProductService.
+func (pf *productFactory) GetProducByIDForShop(productShop string, productID string) (*dtos.ProductResponse, int) {
+	product, err := pf.productRepo.GetProductByShopAndID(productShop, productID)
+	if err != nil {
+		return nil, response.ErrCodeNotFoundProduct
+	}
+
+	productPrice, _ := strconv.ParseFloat(product.ProductPrice, 64)
+	var productAttributes map[string]any
+	_ = json.Unmarshal(product.ProductAttributes, &productAttributes)
+
+	var productVariations []string
+	_ = json.Unmarshal(product.ProductVariations, &productVariations)
+	return &dtos.ProductResponse{
+		ID:                   product.ID,
+		ProductName:          product.ProductName,
+		ProductThumb:         product.ProductThumb,
+		ProductDescription:   &product.ProductDescription.String,
+		ProductPrice:         float32(productPrice),
+		ProductQuantity:      int(product.ProductQuantity),
+		ProductType:          string(product.ProductType),
+		ProductShop:          product.ProductShop,
+		ProductAttributes:    productAttributes,
+		ProductVariations:    productVariations,
+		ProductRatingAverage: product.ProductRatingaverage.String,
+		CreatedAt:            product.CreatedAt.Time,
+		UpdatedAt:            product.UpdatedAt.Time,
+	}, response.CodeSuccess
+}
+
+// UpdateProduct implements IProductService.
+func (pf *productFactory) UpdateProduct(bodyUpdate dtos.ProductUpdateRequest, productType string, productID string) (*dtos.ProductUpdateResponse, int) {
+	productTypeRef, ok := pf.ProductTypes[productType]
+	if !ok {
+		return nil, response.ErrCodeInvalidProductType
+	}
+	updatedProduct, err := productTypeRef.UpdateProduct(bodyUpdate, productID)
+	if err != nil {
+		return nil, response.ErrCodeFailedUpdateDB
+	}
+
+	return &dtos.ProductUpdateResponse{
+		ID: updatedProduct.ID,
+	}, response.CodeSuccess
+}
+
 // GetAllPublishedForShop implements IProductService.
 func (pf *productFactory) GetAllPublishedForShop(productShop string, options ...int) ([]dtos.ProductResponse, int) {
 	limit, skip := 50, 0
