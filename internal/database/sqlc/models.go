@@ -9,7 +9,50 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"time"
 )
+
+type DiscountsDiscountAppliesTo string
+
+const (
+	DiscountsDiscountAppliesToAll      DiscountsDiscountAppliesTo = "all"
+	DiscountsDiscountAppliesToSpecific DiscountsDiscountAppliesTo = "specific"
+)
+
+func (e *DiscountsDiscountAppliesTo) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DiscountsDiscountAppliesTo(s)
+	case string:
+		*e = DiscountsDiscountAppliesTo(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DiscountsDiscountAppliesTo: %T", src)
+	}
+	return nil
+}
+
+type NullDiscountsDiscountAppliesTo struct {
+	DiscountsDiscountAppliesTo DiscountsDiscountAppliesTo
+	Valid                      bool // Valid is true if DiscountsDiscountAppliesTo is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDiscountsDiscountAppliesTo) Scan(value interface{}) error {
+	if value == nil {
+		ns.DiscountsDiscountAppliesTo, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DiscountsDiscountAppliesTo.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDiscountsDiscountAppliesTo) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DiscountsDiscountAppliesTo), nil
+}
 
 type ProductsProductType string
 
@@ -69,6 +112,40 @@ type Clothe struct {
 	UpdatedAt   sql.NullTime
 	Size        string
 	Material    string
+}
+
+type Discount struct {
+	ID                     string
+	DiscountName           string
+	DiscountDescription    string
+	DiscountType           string
+	DiscountValue          int32
+	DiscountCode           string
+	DiscountStartDate      time.Time
+	DiscountEndDate        time.Time
+	DiscountMaxUses        int32
+	DiscountUsesCount      int32
+	DiscountMaxUsesPerUser int32
+	DiscountMinOrderValue  int32
+	DiscountShopID         string
+	DiscountIsActive       bool
+	DiscountAppliesTo      DiscountsDiscountAppliesTo
+	CreatedAt              sql.NullTime
+	UpdatedAt              sql.NullTime
+}
+
+type DiscountProductID struct {
+	DiscountID string
+	ProductID  string
+	CreatedAt  sql.NullTime
+	UpdatedAt  sql.NullTime
+}
+
+type DiscountUsersUsed struct {
+	DiscountID string
+	UserID     string
+	CreatedAt  sql.NullTime
+	UpdatedAt  sql.NullTime
 }
 
 type Electronic struct {
